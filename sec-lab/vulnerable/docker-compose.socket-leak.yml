@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  backend:
+    image: alpine:latest
+    command: sleep 3600
+    volumes:
+      # CRITICAL RISK: Docker daemon control socket exposed to container
+      - /var/run/docker.sock:/var/run/docker.sock

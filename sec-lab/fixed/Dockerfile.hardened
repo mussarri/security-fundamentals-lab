@@ -1,0 +1,26 @@
+# Multi-stage ve Non-Root (UID 1001) Hardened Dockerfile
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+
+RUN apk add --no-cache ca-certificates
+
+# Host deployer (UID 1001) ile tam uyumlu non-root kullanıcı
+RUN addgroup -g 1001 appgroup && \
+    adduser -u 1001 -G appgroup -s /bin/sh -D appuser
+
+COPY --chown=appuser:appgroup package*.json ./
+COPY --chown=appuser:appgroup --from=builder /app/node_modules ./node_modules
+COPY --chown=appuser:appgroup --from=builder /app/dist ./dist
+
+# Root yetkilerini bırak
+USER 1001:1001
+
+EXPOSE 4000
+CMD ["node", "dist/main.js"]

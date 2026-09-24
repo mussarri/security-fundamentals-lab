@@ -1,0 +1,15 @@
+version: '3.8'
+
+# TEHLİKE: Tek ağ, port dışarı açık, veritabanı internete çıkabiliyor
+services:
+  frontend:
+    image: node:22-alpine
+    ports:
+      - "3000:3000"
+
+  database:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432" # WAN'a açık!
+    environment:
+      - POSTGRES_PASSWORD=supersecret

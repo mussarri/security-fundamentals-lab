@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y \
     iptables \
     iproute2 \
     procps \
+    bind9-dnsutils \
+    openssl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /lab

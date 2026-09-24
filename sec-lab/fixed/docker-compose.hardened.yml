@@ -1,0 +1,32 @@
+version: '3.8'
+
+networks:
+  public-net:
+    driver: bridge
+  internal-net:
+    internal: true # Dış dünyaya (WAN) kapalı
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.hardened
+    user: "1001:1001"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    networks:
+      - public-net
+      - internal-net
+    volumes:
+      - ./secret.env:/app/.env:ro
+
+  database:
+    image: postgres:16-alpine
+    networks:
+      - internal-net
+    # ports: satırı yok, dışarıdan doğrudan erişilemez
