@@ -3,7 +3,8 @@ Sunucu üzerindeki `.env` ve gizli anahtar dosyalarının `chmod 600` ile korunm
 
 ## Adımlar
 1. Test dizini ve dosyası oluştur:
-   ```bash
+
+``` bash
    touch /tmp/test-secret.env
    echo "API_KEY=super_secret_123" > /tmp/test-secret.env
 İzinleri sıkılaştır:
@@ -13,4 +14,4 @@ chmod 600 /tmp/test-secret.env
 ls -la /tmp/test-secret.env
 # Beklenen: -rw-------
 Başka bir yetkisiz kullanıcı veya container ile okumayı dene (Permission denied).
-```bash
+``` 
