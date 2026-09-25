@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>DOM-based XSS Laboratuvarı</title>
+</head>
+<body style="font-family: sans-serif; padding: 40px; background: #0f172a; color: #f8fafc;">
+  <h2>DOM XSS: Source -> Sink Akışı</h2>
+  <p>Bu sayfada sunucu tarafı render YOKTUR. Tüm mantık tarayıcı JavaScript'inde çalışır.</p>
+
+  <div style="margin-top: 20px;">
+    <h3>1. Zafiyetli Alan (innerHTML Sink)</h3>
+    <div id="vulnerable-greeting" style="padding: 10px; background: #1e293b; border-radius: 4px;"></div>
+  </div>
+
+  <div style="margin-top: 20px;">
+    <h3>2. Sıkılaştırılmış Alan (textContent Kullanımı)</h3>
+    <div id="hardened-greeting" style="padding: 10px; background: #1e293b; border-radius: 4px;"></div>
+  </div>
+
+  <script>
+    // SOURCE: URL Hash parametresini oku (örn: #name=Mustafa)
+    // Hash (#) sunucuya gitmez, sadece tarayıcıda okunur!
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    const userName = params.get('name') || 'Misafir';
+
+    // 1. ZAFİYETLİ ATAMA (SINK):
+    // Kullanıcı girdisi doğrudan innerHTML'e basılıyor
+    document.getElementById('vulnerable-greeting').innerHTML = "Hoş geldin, <strong>" + userName + "</strong>";
+
+    // 2. GÜVENLİ ATAMA:
+    // textContent kullanılarak HTML parsing tamamen engelleniyor
+    const hardenedElem = document.getElementById('hardened-greeting');
+    hardenedElem.textContent = "Hoş geldin, " + userName;
+  </script>
+</body>
+</html>
