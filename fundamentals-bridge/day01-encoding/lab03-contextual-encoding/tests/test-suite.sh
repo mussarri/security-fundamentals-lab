@@ -46,7 +46,6 @@ else
 fi
 
 echo -e "\n${BLUE}=== TEST 2: Sıkılaştırılmış Sunucuda Çok Katmanlı Payload Engelleme ===${NC}"
-# website parametresine gelen input, önce HTML entity decode edilecek, sonra href attribute'unda context encoding ile encode edilecek ve son olarak URL scheme kontrolü yapılacak. yani python3 -c 'import urllib.parse; print(urllib.parse.quote("""'"$PAYLOAD"'"""))' ile encode edilmiş payload, sunucu tarafında önce unescape edilecek ve href attribute'unda context encoding ile encode edilecek. Bu sayede href attribute'unda "javascript:" scheme'i tespit edilebilecek ve '#invalid-scheme' döndürülecek.
 RESPONSE_FIXED=$(curl -s "http://127.0.0.1:5021/profile?website=$(python3 -c 'import urllib.parse; print(urllib.parse.quote("""'"$PAYLOAD"'"""))')")
 
 echo "Sunucu Yanıtı:"
@@ -61,7 +60,6 @@ fi
 
 echo -e "\n${BLUE}=== TEST 3: Meşru URL Doğrulaması ===${NC}"
 LEGIT_URL="https://example.com/user/alice?tab=info&lang=en"
-# Legit URL, context encoding ile encode edilerek href attribute'unda doğru şekilde gösterilmeli. Yani '&' karakteri '&amp;' olarak encode edilmeli. Bu response, sıkılaştırılmış sunucunun meşru URL'leri doğru şekilde işleyip işlemediğini test eder. 
 RESPONSE_LEGIT=$(curl -s "http://127.0.0.1:5021/profile?website=$(python3 -c 'import urllib.parse; print(urllib.parse.quote("""'"$LEGIT_URL"'"""))')")
 
 if echo "$RESPONSE_LEGIT" | grep -q 'href="https://example.com/user/alice?tab=info&amp;lang=en"'; then

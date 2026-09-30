@@ -25,7 +25,6 @@ cleanup() {
     kill $PID_FIXED 2>/dev/null || true
 }
 trap cleanup EXIT
-# trap cleanup EXIT sunu yapar: Program sonlandığında cleanup fonksiyonunu çağırır
 
 sleep 2
 
@@ -39,7 +38,6 @@ BODY_VULN=$(echo "$RESPONSE_VULN" \vert{} sed '$d')
 echo "HTTP Kodu: $HTTP_CODE_VULN"
 echo "Yanıt Gövdesi: $BODY_VULN"
 
-# Test sonucu: Eğer HTTP kodu 200 ise ve yanıt gövdesinde "CRITICAL_ADMIN_ACCESS_GRANTED" geçiyorsa, zafiyet başarılı bir şekilde tetiklenmiş demektir.
 if [ "$HTTP_CODE_VULN" -eq 200 ] \vert{}\vert{} echo "$BODY_VULN" | grep -q "CRITICAL_ADMIN_ACCESS_GRANTED"; then
     echo -e "${RED}[!] EXPLOIT BAŞARILI: Çift decode ve yetersiz normalizasyon ile bypass yapıldı.${NC}"
 else

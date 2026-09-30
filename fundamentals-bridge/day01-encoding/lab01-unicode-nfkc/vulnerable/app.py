@@ -26,12 +26,12 @@ def register():
     username = data.get('username', '')
 
     # 1. Sözdizimsel Doğrulama (Zayıf: Unicode alfanümerikleri kabul eder)
-    # Unicode alfanümerik karakterler, örneğin İ, Ş, Ğ gibi Türkçe karakterler de kabul edilir. Bu da güvenlik riski oluşturabilir.
+    # Bu doğrulama, kullanıcı adının sadece alfanümerik karakterler içerip içermediğini kontrol eder. Ancak, Unicode karakterleri de kabul ettiği için güvenlik açısından zayıftır. yani 
     if not username.isalnum():
         return jsonify({"status": "error", "message": "Yalnızca alfanümerik karakterler."}), 400
 
     # 2. Çakışma Kontrolü (HATA: Ham girdi üzerinde sorgulanıyor)
-    # Bu kontrol, kullanıcı adının veritabanında zaten var olup olmadığını kontrol eder. Ancak, bu kontrol ham girdi üzerinde yapıldığı için, Unicode normalizasyonu yapılmamış kullanıcı adları arasında çakışmalar olabilir. Örneğin, "user" ve "uſer" (uzun s) gibi farklı Unicode karakterler aynı görünebilir ancak farklı kod noktalarına sahiptir. Bu nedenle, normalizasyon yapılmadan yapılan çakışma kontrolü yanıltıcı olabilir.
+    # Bu adımda, kullanıcı adı veritabanında zaten mevcut olup olmadığını kontrol ediyoruz. Ancak, bu kontrol ham girdi üzerinde yapıldığı için, Unicode karakterlerin farklı görünümleri nedeniyle çakışmalar gözden kaçabilir. Mesela 'café' ve 'cafe' aynı görünümde olabilir ama farklı Unicode karakterleri kullanır.
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     cur.execute("SELECT id FROM users WHERE username = ?", (username,))
@@ -40,10 +40,11 @@ def register():
         return jsonify({"status": "error", "message": "Bu kullanıcı adı zaten alınmış."}), 409
 
     # 3. Kanonikleştirme (HATA: Doğrulama ve sorgudan SONRA yapılıyor)
+    # Bu adımda, kullanıcı adını Unicode Normalization Form KC (NFKC) kullanarak kanonikleştiriyoruz. Ancak, bu işlem doğrulama ve çakışma kontrolünden sonra yapıldığı için, kullanıcı adı veritabanında zaten mevcut olabilir ve bu durum gözden kaçabilir. Örneğin, 'café' ve 'cafe' aynı görünüme sahip olabilir ama farklı Unicode karakterleri kullanır. Canonicallestirme sonrasi , bu iki kullanıcı adı aynı hale gelir ve çakışma meydana gelir.
     canonical_username = unicodedata.normalize('NFKC', username)
 
     # 4. Tüketim / Yazma
-    # Veritabanına yazmadan önce, kanonikleştirilmiş kullanıcı adını kullanarak yeni bir kullanıcı oluşturuyoruz. Ancak, bu noktada çakışma kontrolü yapılmadığı için, kanonikleştirilmiş kullanıcı adı zaten veritabanında mevcutsa, UNIQUE constraint ihlali meydana gelebilir ve bu da bir hata veya hizmet reddi durumuna yol açabilir.
+    # Bu adımda, kanonikleştirilmiş kullanıcı adını veritabanına ekliyoruz. Ancak, bu işlem sırasında bir çakışma meydana gelirse, IntegrityError yakalanır ve uygun bir hata mesajı döndürülür. Bu, kullanıcı adı veritabanında zaten mevcutsa veya başka bir çakışma varsa meydana gelebilir.
     try:
         cur.execute("INSERT INTO users (username, role) VALUES (?, 'user')", (canonical_username,))
         conn.commit()

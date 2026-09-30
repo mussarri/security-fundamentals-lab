@@ -4,3 +4,11 @@ privkey.pem
 FINAL_VERIFICATION_REPORT_V2.md
 SECURITY_FUNDAMENTALS_AUDIT.md
 FINAL_SECURITY_REPORT.md
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+.venv
+.mypy_cache/
+.pytest_cache/
+.venv/**

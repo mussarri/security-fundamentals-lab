@@ -37,7 +37,6 @@ def register():
     canonical_username = canonicalize_username(raw_username)
 
     # ADIM 2: Katı Sözdizimsel Doğrulama (Sadece güvenli ASCII alfanümerik karakterler)
-    # Kullanıcı adı 3-30 karakter arası olmalı ve sadece küçük harf, rakam veya alt çizgi içermelidir.
     if not re.match(r'^[a-z0-9_]{3,30}$', canonical_username):
         return jsonify({
             "status": "error",
@@ -53,7 +52,6 @@ def register():
         return jsonify({"status": "error", "message": "Bu kullanıcı adı zaten alınmış."}), 409
 
     # ADIM 4: Tüketim / Güvenli Kayıt
-    # Kullanıcı adını kanonikleştirilmiş ve doğrulanmış haliyle veritabanına kaydet
     try:
         cur.execute("INSERT INTO users (username, role) VALUES (?, 'user')", (canonical_username,))
         conn.commit()
