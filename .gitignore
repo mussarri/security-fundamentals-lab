@@ -1,1 +1,6 @@
-node_modules
+sql_injection/node_modules
+sql_injection/node_modules/*
+privkey.pem
+FINAL_VERIFICATION_REPORT_V2.md
+SECURITY_FUNDAMENTALS_AUDIT.md
+FINAL_SECURITY_REPORT.md
