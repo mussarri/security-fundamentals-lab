@@ -18,8 +18,8 @@ http.createServer((req, res) => {
 
   // Katı CSP + Nonce Tabanlı Güvenli Yapılandırma
   res.writeHead(200, {
-    'Content-Type': 'text/html; charset=utf-8',
-    'Content-Security-Policy': `default-src 'self'; script-src 'self' 'nonce-${nonce}'; object-src 'none'; base-uri 'self';`
+    'Content-Type': 'text/html; charset=utf-8', // Güvenli içerik türü, su anlama gelir: tüm içerik UTF-8 olarak kodlanacak ve tarayıcıya güvenli bir şekilde iletilecek. ornegin , <script>alert('XSS')</script> gibi zararlı içerikler HTML olarak yorumlanmayacak ve tarayıcıda çalıştırılmayacak. Bu, XSS saldırılarını önlemeye yardımcı olur.
+    'Content-Security-Policy': `default-src 'self'; script-src 'self' 'nonce-${nonce}'; object-src 'none'; base-uri 'self';` // Katı CSP politikası, yalnızca kendi kaynağımızdan gelen içeriklere izin verir ve script'ler için nonce kullanır. Bu, XSS saldırılarını önlemeye yardımcı olur. 'object-src' ve 'base-uri' direktifleri, potansiyel olarak zararlı içeriklerin yüklenmesini engeller. Ornegin , 'object-src' direktifi ile Flash veya Java applet gibi zararlı içeriklerin yüklenmesi engellenir. 'base-uri' direktifi ile, sayfanın temel URI'si yalnızca kendi kaynağımızdan gelen içeriklerle sınırlanır ve potansiyel olarak zararlı yönlendirmeler engellenir.
   });
 
   res.end(`

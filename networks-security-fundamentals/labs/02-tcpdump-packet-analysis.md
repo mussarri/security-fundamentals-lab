@@ -5,17 +5,20 @@
 
 ## Adımlar
 1. Yerel loopback veya bridge arayüzünde HTTP dinleyicisi başlat:
-   ```bash
+ ```bash
    sudo tcpdump -i any -nn -A 'tcp port 8080'
+```
 Ayrı bir terminalden HTTP POST isteği gönder (Hassas veri simülasyonu):
 
-Bash
+ ```Bash
 curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@kargaa.com","password":"SuperSecretPassword123"}'
+  -d '{"email":"admin@application.com","password":"SuperSecretPassword123"}'
+ ```
 tcpdump çıktısında [SYN], [SYN, ACK], [ACK] bayraklarını ve hemen ardındaki HTTP POST gövdesini doğrula.
 
 Çıktıyı pcap formatında kaydet:
 
-Bash
+ ```Bash
 sudo tcpdump -i any -w /tmp/traffic.pcap 'tcp port 8080'
+ ```

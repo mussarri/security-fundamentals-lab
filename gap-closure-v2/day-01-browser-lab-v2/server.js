@@ -29,10 +29,10 @@ const bankServer = http.createServer((req, res) => {
     res.writeHead(200, {
       'Content-Type': 'application/json',
       'Set-Cookie': [
-        'strict_session=ALICE_STRICT; Path=/; HttpOnly; SameSite=Strict',
-        'lax_session=ALICE_LAX; Path=/; HttpOnly; SameSite=Lax',
-        'none_session=ALICE_NONE; Path=/; HttpOnly; SameSite=None; Secure',
-        'csrf_token=token_alice_secret_123; Path=/; SameSite=Lax'
+        'strict_session=ALICE_STRICT; Path=/; HttpOnly; SameSite=Strict', // Sadece aynı site isteklerinde gönderilir, CSRF'yi önler
+        'lax_session=ALICE_LAX; Path=/; HttpOnly; SameSite=Lax', // Lax, GET isteklerinde gönderilir, bazı CSRF saldırılarını engeller
+        'none_session=ALICE_NONE; Path=/; HttpOnly; SameSite=None; Secure', // Cross-site isteklerde gönderilir, CSRF'ye açıktır
+        'csrf_token=token_alice_secret_123; Path=/; SameSite=Lax' // Anti-CSRF token, Lax çerez ile gönderilir
       ]
     });
     return res.end(JSON.stringify({ 
@@ -58,12 +58,12 @@ const bankServer = http.createServer((req, res) => {
   }
 
   // C. ZAFİYETLİ HAVALE (CSRF Açığı): POST /api/vulnerable-transfer
-  // HATA: Sadece çereze güvenir, CSRF Token kontrolü yapmaz.
+  // HATA: Sadece çereze güvenir, CSRF Token kontrolü yapmaz.  
   if (parsedUrl.pathname === '/api/vulnerable-transfer' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => body += chunk);
     req.on('end', () => {
-      // Lax veya None çerezi gelmişse transferi yapar!
+       // Kontrol: Alice'in oturum çerezlerinden herhangi biri mevcut mu?
       if (!cookies.lax_session && !cookies.none_session && !cookies.strict_session) {
         res.writeHead(401, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ error: "Oturum çerezi bulunamadı." }));
@@ -91,11 +91,11 @@ const bankServer = http.createServer((req, res) => {
 
   if (parsedUrl.pathname === '/api/hardened-transfer') {
     // 1. Preflight OPTIONS Kontrolü
-    if (req.method === 'OPTIONS') {
+    if (req.method === 'OPTIONS') { // CORS Preflight isteği. Bu istek, tarayıcı tarafından otomatik olarak gönderilir ve sunucunun hangi kaynaklara izin verdiğini kontrol eder. Bu, Cross-Origin Resource Sharing (CORS) mekanizmasının bir parçasıdır.
       if (origin === ALLOWED_ORIGIN) {
         res.writeHead(204, {
           'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS', // Sadece POST ve OPTIONS izin verilir. GET ve diğer HTTP metodları engellenir. Bu, saldırganın farklı HTTP metodlarını kullanarak kötü niyetli istekler göndermesini önler.
           'Access-Control-Allow-Headers': 'Content-Type, X-CSRF-Token',
           'Access-Control-Allow-Credentials': 'true'
         });
