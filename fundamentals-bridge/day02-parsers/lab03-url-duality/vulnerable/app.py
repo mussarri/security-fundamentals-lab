@@ -41,7 +41,7 @@ def simulate_whatwg_consumer(raw_url: str) -> str:
         # Authority ve path içindeki backslash'ler slash'e dönüşür
         normalized = scheme + "://" + rest.replace("\\", "/")
 
-    # Normalize edilmiş URL üzerinden authority çıkarımı
+    # Normalize edilmiş URL üzerinden authority çıkarımı, host'u alır. Orneğin "https://trusted-partner.com/evil" -> "trusted-partner.com", "https://trusted-partner.com\\evil.com" -> "evil.com"
     match = re.search(r'https?://([^/@:]+)', normalized)
     if match:
         return match.group(1)
@@ -62,6 +62,7 @@ def trigger_webhook():
 
     # 2. Tüketim Katmanı (Consumer - WHATWG istemci davranışı)
     # WHATWG standardına göre URL ayrıştırması yapılır ve host çözülür. orneğin "https://trusted-partner.com\\evil.com" -> WHATWG: "evil.com", RFC: "trusted-partner.com"
+    # ornegin burda girdi "\\trusted-partner.com" -> WHATWG: "trusted-partner.com", RFC: None, trusted-partner.com domainine ait oldugu icin validator onaylar, consumer ise WHATWG ile ayrıştırır ve saldırgan hosta gider. Bu bir SSRF açığıdır.
     resolved_host = simulate_whatwg_consumer(target_url)
 
     # Eğer consumer izin verilmeyen bir host'a gittiyse SSRF tetiklenmiştir

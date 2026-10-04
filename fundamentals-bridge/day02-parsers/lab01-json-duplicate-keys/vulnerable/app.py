@@ -11,7 +11,7 @@ def gateway_validate_role_first_key_wins(raw_body: str) -> str:
     İLK eşleşmeyi esas alır (first-key-wins).
     """
     match = re.search(r'"role"\s*:\s*"([^"]+)"', raw_body) 
-    # Bu regex, JSON dizesinde "role" anahtarının ilk değerini yakalar. Ancak bu yaklaşım, JSON'da tekrar eden anahtarlar varsa sadece ilkini döndürür. Saldırgan, JSON'da birden fazla "role" anahtarı göndererek bu doğrulamayı atlatabilir.
+    # Bu regex, JSON dizesinde "role" anahtarının ilk değerini yakalar. Ancak bu yaklaşım, JSON'da tekrar eden anahtarlar varsa sadece ilkini döndürür. Saldırgan, JSON'da birden fazla "role" anahtarı göndererek bu doğrulamayı atlatabilir. Ornegin {"role": "user", "role": "admin"} -> ilk "role" değeri "user" olur.
     if match:
         return match.group(1)
     return "user"
