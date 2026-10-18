@@ -3,6 +3,8 @@ import pytest
 from vulnerable.hasher import NaivePasswordManager
 from fixed.hasher import SecurePasswordManager
 
+ 
+
 def test_vulnerable_sha256_is_dangerously_fast():
     password = "SuperSecretPassword123!"
     iterations = 1000

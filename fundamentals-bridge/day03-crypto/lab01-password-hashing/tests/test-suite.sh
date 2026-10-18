@@ -12,6 +12,6 @@ source .venv/bin/activate
 pip install --quiet argon2-cffi pytest
 
 echo -e "${BLUE}[*] Kriptografik Maliyet ve Güvenlik Testleri Koşturuluyor...${NC}"
-pytest -s tests/test_hashing.py
+pytest -s ./tests/test_hashing.py
 
 echo -e "\n${GREEN}[✓] Testler tamamlandı: Hızlı hash ile bellek-zorlu KDF arasındaki donanım maliyeti farkı kanıtlandı.${NC}"

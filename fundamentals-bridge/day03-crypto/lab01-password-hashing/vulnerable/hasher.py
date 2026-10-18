@@ -1,5 +1,8 @@
 import hashlib
 import os
+# how to export this package as a module to be used in the test suite, 
+# bu dosyayı bir modül olarak dışa aktarmak için __all__ listesini kullanabilirsiniz. sonra test suite içinde bu modülü içe aktarabilirsiniz.
+__all__ = ['NaivePasswordManager']
 
 class NaivePasswordManager:
     """
